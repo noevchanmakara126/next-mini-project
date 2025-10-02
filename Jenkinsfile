@@ -55,7 +55,7 @@ pipeline {
         stage('Check if git repo manifest exists') {
             steps {
                 sh '''
-                    REPO_DIR="manifest-testing"
+                    REPO_DIR="next-manifest"
 
                     if [ -d "$REPO_DIR" ]; then
                         echo "Repository folder exists! Removing it..."
