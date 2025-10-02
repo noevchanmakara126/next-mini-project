@@ -72,7 +72,7 @@ pipeline {
                 sh 'ls'
                 sh 'git clone https://github.com/noevchanmakara126/next-manifest.git'
                 sh 'ls'
-                sh 'cd manifest-testing'
+                sh 'cd next-manifest'
                 sh 'ls'
             }
         }
