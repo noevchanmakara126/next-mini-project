@@ -96,7 +96,7 @@ pipeline {
         stage('Update Manifest') {
             steps {
                 sh '''
-                    cd manifest-testing
+                    cd next-manifest
                     sed -i "s|image: .*|image: makarajr126/spring-app:${BUILD_NUMBER}|" deployment.yaml
                     cat deployment.yaml
                 '''
@@ -107,7 +107,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'a094976e-2529-476f-befa-7137fc60af94', variable: 'GIT_TOKEN')]) {
                     sh '''
-                        cd manifest-testing
+                        cd next-manifest
                         git config user.name "Noev Chanmakara"
                         git config user.email "jrmakara97@gmail.com"
                         git add deployment.yaml
