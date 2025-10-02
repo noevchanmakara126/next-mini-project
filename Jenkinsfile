@@ -80,7 +80,6 @@ pipeline {
         stage('Clone the git repo') {
             steps {
                 sh 'git clone https://github.com/noevchanmakara126/next-mini-project.git'
-                sh 'cd nextjs'
                 sh 'ls'
             }
         }
