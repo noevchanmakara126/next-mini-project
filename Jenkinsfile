@@ -1,6 +1,6 @@
 pipeline{
     agent{
-        kurberetes{
+        kubernetes{
           yaml """
 apiVersion: v1
 kind: Pod
@@ -21,7 +21,7 @@ spec:
           """
         }
     }
-    trigerrs{
+    trigers{
         githubPush()
     }
     stages{
