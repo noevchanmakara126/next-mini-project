@@ -1,7 +1,7 @@
-pipeline{
-    agent{
-        kubernetes{
-          yaml """
+pipeline {
+    agent {
+        kubernetes {
+            yaml """
               apiVersion: v1
               kind: Pod
               spec:
@@ -17,52 +17,57 @@ pipeline{
                 volumes:
                 - name: docker-socket
                   hostPath:
-                      path: /var/run/docker.sock
-          """
+                    path: /var/run/docker.sock
+            """
         }
     }
-   triggers {
-            githubPush()
-    
-    stages{
-        stage('Login to DockerHub'){
-            steps{
-                 container('docker') {
+
+    triggers {
+        githubPush()
+    }
+
+    stages {
+        stage('Login to DockerHub') {
+            steps {
+                container('docker') {
                     withCredentials([usernamePassword(credentialsId: 'adfa3fe4-30a1-472d-8e57-14f82295a72f', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                         sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
                     }
                 }
             }
         }
-        stage('Check if git next js repo exists') {
-           steps {
-               sh '''
-                       REPO_DIR="nextjs"
 
-                       if [ -d "$REPO_DIR" ]; then
-                           echo "Repository folder exists! Removing it..."
-                           rm -rf "$REPO_DIR"
-                       else
-                           echo "Repository folder does not exist. Nothing to remove."
-                       fi
-                       '''
-           }
+        stage('Check if git next js repo exists') {
+            steps {
+                sh '''
+                    REPO_DIR="nextjs"
+
+                    if [ -d "$REPO_DIR" ]; then
+                        echo "Repository folder exists! Removing it..."
+                        rm -rf "$REPO_DIR"
+                    else
+                        echo "Repository folder does not exist. Nothing to remove."
+                    fi
+                '''
+            }
         }
+
         stage('Check if git repo manifest exists') {
             steps {
                 sh '''
-                        REPO_DIR="manifest-testing"
+                    REPO_DIR="manifest-testing"
 
-                        if [ -d "$REPO_DIR" ]; then
+                    if [ -d "$REPO_DIR" ]; then
                         echo "Repository folder exists! Removing it..."
                         rm -rf "$REPO_DIR"
-                        else
+                    else
                         echo "Repository folder does not exist. Nothing to remove."
-                        fi
-                    '''
+                    fi
+                '''
             }
         }
-        stage('Clone the git repo for manifest'){
+
+        stage('Clone the git repo for manifest') {
             steps {
                 sh 'ls'
                 sh 'git clone https://github.com/noevchanmakara126/next-manifest.git'
@@ -71,53 +76,55 @@ pipeline{
                 sh 'ls'
             }
         }
-        stage('Clone the git repo'){
-                   steps {
-                       sh 'git clone https://github.com/noevchanmakara126/next-mini-project.git'
-                       sh 'cd nextjs '
-                       sh 'ls'
-                   }
+
+        stage('Clone the git repo') {
+            steps {
+                sh 'git clone https://github.com/noevchanmakara126/next-mini-project.git'
+                sh 'cd nextjs'
+                sh 'ls'
+            }
         }
-        stage('Build Docker Image'){
-            steps{
-                container('docker'){
+
+        stage('Build Docker Image') {
+            steps {
+                container('docker') {
                     sh 'docker build -t makarajr126/next-manifest-file:${BUILD_NUMBER} .'
                     sh 'docker images'
                 }
             }
         }
+
         stage('Update Manifest') {
-           steps {
-               sh '''
-                   cd manifest-testing
-                   sed -i "s|image: .*|image: makarajr126/spring-app:${BUILD_NUMBER}|" deployment.yaml
-                   cat deployment.yaml
-               '''
+            steps {
+                sh '''
+                    cd manifest-testing
+                    sed -i "s|image: .*|image: makarajr126/spring-app:${BUILD_NUMBER}|" deployment.yaml
+                    cat deployment.yaml
+                '''
             }
         }
+
         stage('Commit & Push Manifest') {
-                   steps {
-                       withCredentials([string(credentialsId: 'a094976e-2529-476f-befa-7137fc60af94', variable: 'GIT_TOKEN')]) {
-                           sh '''
-                               cd manifest-testing
-                               git config user.name "Noev Chanmakara"
-                               git config user.email "jrmakara97@gmail.com"
-                               git add deployment.yaml
-                               git commit -m "Update image tag to ${BUILD_NUMBER}" || echo "No changes to commit"
-                               git push https://$GIT_TOKEN@github.com/noevchanmakara126/next-manifest.git HEAD:main
-                           '''
-                       }
-                   }
-       }
-        stage ('Push Docker Image to DockerHub'){
-            steps{
-                container('docker'){
-                    sh 'docker push makarajr126/next-manifest-file:${BUILD_NUMBER}'
+            steps {
+                withCredentials([string(credentialsId: 'a094976e-2529-476f-befa-7137fc60af94', variable: 'GIT_TOKEN')]) {
+                    sh '''
+                        cd manifest-testing
+                        git config user.name "Noev Chanmakara"
+                        git config user.email "jrmakara97@gmail.com"
+                        git add deployment.yaml
+                        git commit -m "Update image tag to ${BUILD_NUMBER}" || echo "No changes to commit"
+                        git push https://$GIT_TOKEN@github.com/noevchanmakara126/next-manifest.git HEAD:main
+                    '''
                 }
             }
         }
 
-    
+        stage('Push Docker Image to DockerHub') {
+            steps {
+                container('docker') {
+                    sh 'docker push makarajr126/next-manifest-file:${BUILD_NUMBER}'
+                }
+            }
+        }
     }
-
 }
