@@ -107,7 +107,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'a094976e-2529-476f-befa-7137fc60af94', variable: 'GIT_TOKEN')]) {
                     sh '''
-                        cd next-manifest
+                        cd manifest-testing
                         git config user.name "Noev Chanmakara"
                         git config user.email "jrmakara97@gmail.com"
                         git add deployment.yaml
