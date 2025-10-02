@@ -97,7 +97,7 @@ pipeline {
             steps {
                 sh '''
                     cd next-manifest
-                    sed -i "s|image: .*|image: makarajr126/spring-app:${BUILD_NUMBER}|" deployment.yaml
+                    sed -i "s|image: .*|image: makarajr126/next-manifest-file:${BUILD_NUMBER}|" deployment.yaml
                     cat deployment.yaml
                 '''
             }
